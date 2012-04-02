@@ -4,7 +4,7 @@
   <title><![CDATA[Category: blog | ywen.in.coding]]></title>
   <link href="http://ywen.github.com/blog/categories/blog/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-01T22:44:09-05:00</updated>
+  <updated>2012-04-01T22:48:22-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -93,6 +93,8 @@ include_examples "standard index action", :model_name =&gt; :user, :with_present
 
 <p>  end
 ```</p>
+
+<p>You could always choose not to use these default actions generators, however, it will be more coding and probably less readable code as the result.</p>
 
 <h2>Views and Presenters</h2>
 
