@@ -4,7 +4,7 @@
   <title><![CDATA[Category: blog | ywen.in.coding]]></title>
   <link href="http://ywen.github.com/blog/categories/blog/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-01T21:53:36-05:00</updated>
+  <updated>2012-04-01T22:41:30-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[My coding standard for Rails projects]]></title>
+    <title type="html"><![CDATA[My coding standard for Rails projects (part 1)]]></title>
     <link href="http://ywen.github.com/blog/2012/04/01/coding-standard/"/>
     <updated>2012-04-01T00:00:00-05:00</updated>
     <id>http://ywen.github.com/blog/2012/04/01/coding-standard</id>
@@ -38,7 +38,7 @@
 
 <p>Putting anything more than the above tasks is considered to be too much by my standard.</p>
 
-<p>A typical controller <code>create</code> and <code>show</code> may look like this:</p>
+<p>A typical controller <code>create</code>, <code>show</code> ad <code>index</code> actions may look like this:</p>
 
 <p>```ruby</p>
 
@@ -60,9 +60,81 @@ respond_with Presenters::User.new(user)
 
 <p>  end</p>
 
+<p>  def index</p>
+
+<pre><code>users = Finders::Users.all(params)
+respond_with Presenters::MinimalUserList.new(users)
+</code></pre>
+
+<p>  end
+end</p>
+
 <p>```</p>
 
-<p>If enough models can be made in this exact pattern, we could simplify code with some little DSL:</p>
+<p>You may see, if several models use the same pattern as described above, we can DRY it up using some nice little DSL:</p>
+
+<p><code>ruby
+class UsersController
+  create_action :user
+  show_action :user
+  index_action :user, :with_presenter =&gt; Presenters::MinimalUserList
+end
+</code></p>
+
+<p>Even better, the specs can be as simple as:</p>
+
+<p>```ruby
+  desceribe UsersController do</p>
+
+<pre><code>include_examples "standard create action", :model_name =&gt; :user
+include_examples "standard show action", :model_name =&gt; :user
+include_examples "standard index action", :model_name =&gt; :user, :with_presenter =&gt; Presenters::MinimalUserList
+</code></pre>
+
+<p>  end
+```</p>
+
+<h2>Views and Presenters</h2>
+
+<p>Let's face it: the views will always have logic for any given complicated enough sites. There will always be ifs and elses in the view templates. We cannot avoid them.</p>
+
+<p>But by using the Presenter pattern, we can greatly make view much less complicated. Let's see an example (I use HAML):</p>
+
+<p><code>haml
+- image_name = @user.confirmed? "confirmed.png" : "unconfirmed.png"
+%img{:source =&gt; image_name, :alt =&gt; "confirmed status"}
+...
+</code></p>
+
+<p>The above example already has a condition statement. With a presenter, the view can be changed to:</p>
+
+<p><code>haml
+%img{:source =&gt; @user.confirmed_status_image_name, :alt =&gt; "confirmed status"}
+</code></p>
+
+<p>The <code>confirmed_status_image_name</code> method will return the image path will be used. Natually, such a method should not be in a business model class since it concerns the view and only the view. A presenter is the best place to put such logic. The same logic, when in a view, is hard to unit test, but when it is in its own method, it is super simple to write the tests.</p>
+
+<p>A view template should have one and only one instance variable that passed from its associated controller action: a some sort of presenter instance. It should not have anything else. When a view requires some logic, this logic belongs to an instance method of that presenter class.</p>
+
+<p>What about if the controller is rendering a JSON? A presenter can and should help with that. Again, JSON is just another representation of your resource, thus JSON should not be part of your business logic, it should be in a presenter. Some code snippet shows you how simple it could be:</p>
+
+<p>```ruby
+module Presenters
+  class User &lt; ObjectForDisplay</p>
+
+<pre><code>to_json_properties :name_with_first_last_in_front, :email_addresses, :phone, :status
+forward_methods :email_addresses, :status
+
+def name_with_first_last_in_front
+  "#{object.first_name} #{object.last_name}"
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>The <code>to_json_properties</code> defines a baseline of what attributes will be included in the <code>to_json</code> returns.  Each attribute is either frwarded from the business model object, or defined in the presenter class when it apprantely doesn't belong to a business model.</p>
 ]]></content>
   </entry>
   

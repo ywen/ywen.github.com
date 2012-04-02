@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>My coding standard for Rails projects - ywen.in.coding</title>
+  <title>My coding standard for Rails projects (part 1) - ywen.in.coding</title>
   <meta name="author" content="Yi Wen">
 
   
@@ -67,7 +67,7 @@
   
   <header>
     
-      <h1 class="entry-title">My Coding Standard for Rails Projects</h1>
+      <h1 class="entry-title">My Coding Standard for Rails Projects (Part 1)</h1>
     
     
       <p class="meta">
@@ -112,7 +112,7 @@
 
 <p>Putting anything more than the above tasks is considered to be too much by my standard.</p>
 
-<p>A typical controller <code>create</code> and <code>show</code> may look like this:</p>
+<p>A typical controller <code>create</code>, <code>show</code> ad <code>index</code> actions may look like this:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -125,6 +125,12 @@
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">UsersController</span>
 </span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
 </span><span class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">Builders</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">build</span>
@@ -136,10 +142,97 @@
 </span><span class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">Finders</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">)</span>
 </span><span class='line'>    <span class="n">respond_with</span> <span class="no">Presenters</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
 </span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">index</span>
+</span><span class='line'>    <span class="n">users</span> <span class="o">=</span> <span class="no">Finders</span><span class="o">::</span><span class="no">Users</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">respond_with</span> <span class="no">Presenters</span><span class="o">::</span><span class="no">MinimalUserList</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">users</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>If enough models can be made in this exact pattern, we could simplify code with some little DSL:</p>
+<p>You may see, if several models use the same pattern as described above, we can DRY it up using some nice little DSL:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">UsersController</span>
+</span><span class='line'>  <span class="n">create_action</span> <span class="ss">:user</span>
+</span><span class='line'>  <span class="n">show_action</span> <span class="ss">:user</span>
+</span><span class='line'>  <span class="n">index_action</span> <span class="ss">:user</span><span class="p">,</span> <span class="ss">:with_presenter</span> <span class="o">=&gt;</span> <span class="no">Presenters</span><span class="o">::</span><span class="no">MinimalUserList</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Even better, the specs can be as simple as:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="n">desceribe</span> <span class="no">UsersController</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">include_examples</span> <span class="s2">&quot;standard create action&quot;</span><span class="p">,</span> <span class="ss">:model_name</span> <span class="o">=&gt;</span> <span class="ss">:user</span>
+</span><span class='line'>    <span class="n">include_examples</span> <span class="s2">&quot;standard show action&quot;</span><span class="p">,</span> <span class="ss">:model_name</span> <span class="o">=&gt;</span> <span class="ss">:user</span>
+</span><span class='line'>    <span class="n">include_examples</span> <span class="s2">&quot;standard index action&quot;</span><span class="p">,</span> <span class="ss">:model_name</span> <span class="o">=&gt;</span> <span class="ss">:user</span><span class="p">,</span> <span class="ss">:with_presenter</span> <span class="o">=&gt;</span> <span class="no">Presenters</span><span class="o">::</span><span class="no">MinimalUserList</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Views and Presenters</h2>
+
+<p>Let&#8217;s face it: the views will always have logic for any given complicated enough sites. There will always be ifs and elses in the view templates. We cannot avoid them.</p>
+
+<p>But by using the Presenter pattern, we can greatly make view much less complicated. Let&#8217;s see an example (I use HAML):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='haml'><span class='line'><span class="p">-</span> <span class="n">image_name</span> <span class="o">=</span> <span class="vi">@user</span><span class="o">.</span><span class="n">confirmed?</span> <span class="s2">&quot;confirmed.png&quot;</span> <span class="p">:</span> <span class="s2">&quot;unconfirmed.png&quot;</span>
+</span><span class='line'><span class="nt">%img</span><span class="p">{</span><span class="ss">:source</span> <span class="o">=&gt;</span> <span class="n">image_name</span><span class="p">,</span> <span class="ss">:alt</span> <span class="o">=&gt;</span> <span class="s2">&quot;confirmed status&quot;</span><span class="p">}</span>
+</span><span class='line'>...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The above example already has a condition statement. With a presenter, the view can be changed to:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='haml'><span class='line'><span class="nt">%img</span><span class="p">{</span><span class="ss">:source</span> <span class="o">=&gt;</span> <span class="vi">@user</span><span class="o">.</span><span class="n">confirmed_status_image_name</span><span class="p">,</span> <span class="ss">:alt</span> <span class="o">=&gt;</span> <span class="s2">&quot;confirmed status&quot;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>confirmed_status_image_name</code> method will return the image path will be used. Natually, such a method should not be in a business model class since it concerns the view and only the view. A presenter is the best place to put such logic. The same logic, when in a view, is hard to unit test, but when it is in its own method, it is super simple to write the tests.</p>
+
+<p>A view template should have one and only one instance variable that passed from its associated controller action: a some sort of presenter instance. It should not have anything else. When a view requires some logic, this logic belongs to an instance method of that presenter class.</p>
+
+<p>What about if the controller is rendering a JSON? A presenter can and should help with that. Again, JSON is just another representation of your resource, thus JSON should not be part of your business logic, it should be in a presenter. Some code snippet shows you how simple it could be:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Presenters</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ObjectForDisplay</span>
+</span><span class='line'>    <span class="n">to_json_properties</span> <span class="ss">:name_with_first_last_in_front</span><span class="p">,</span> <span class="ss">:email_addresses</span><span class="p">,</span> <span class="ss">:phone</span><span class="p">,</span> <span class="ss">:status</span>
+</span><span class='line'>    <span class="n">forward_methods</span> <span class="ss">:email_addresses</span><span class="p">,</span> <span class="ss">:status</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">name_with_first_last_in_front</span>
+</span><span class='line'>      <span class="s2">&quot;</span><span class="si">#{</span><span class="n">object</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="n">object</span><span class="o">.</span><span class="n">last_name</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>to_json_properties</code> defines a baseline of what attributes will be included in the <code>to_json</code> returns.  Each attribute is either frwarded from the business model object, or defined in the presenter class when it apprantely doesn&#8217;t belong to a business model.</p>
 </div>
 
 
@@ -199,7 +292,7 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2012/04/01/coding-standard/">My coding standard for Rails projects</a>
+        <a href="/blog/2012/04/01/coding-standard/">My coding standard for Rails projects (part 1)</a>
       </li>
     
   </ul>
