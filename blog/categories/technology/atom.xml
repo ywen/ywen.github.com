@@ -4,7 +4,7 @@
   <title><![CDATA[Category: technology | ywen.in.coding]]></title>
   <link href="http://ywen.github.com/blog/categories/technology/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-01T22:52:32-05:00</updated>
+  <updated>2012-04-01T22:57:53-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -114,7 +114,7 @@ include_examples "standard index action", :model_name =&gt; :user, :with_present
 %img{:source =&gt; @user.confirmed_status_image_name, :alt =&gt; "confirmed status"}
 </code></p>
 
-<p>The <code>confirmed_status_image_name</code> method will return the image path will be used. Natually, such a method should not be in a business model class since it concerns the view and only the view. A presenter is the best place to put such logic. The same logic, when in a view, is hard to unit test, but when it is in its own method, it is super simple to write the tests.</p>
+<p>The <code>confirmed_status_image_name</code> method returns the image path will be used. Natually, such a method should not be in a business model class since it concerns the view and only the view. A presenter is the best place to put such logic. The same logic, when in a view, is hard to unit test, but when it is in its own method, it is super simple to write the tests.</p>
 
 <p>A view template should have one and only one instance variable that passed from its associated controller action: a some sort of presenter instance. It should not have anything else. When a view requires some logic, this logic belongs to an instance method of that presenter class.</p>
 
