@@ -4,7 +4,7 @@
   <title><![CDATA[Category: technology | ywen.in.coding]]></title>
   <link href="http://ywen.github.com/blog/categories/technology/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-01T22:57:53-05:00</updated>
+  <updated>2012-04-01T23:19:07-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -46,7 +46,7 @@
   def create</p>
 
 <pre><code>user = Builders::User.new(params).build
-Persistence::User.new(user).persistent
+Persistence::User.new(user).persist
 respond_with Presenters::User.new(user)
 </code></pre>
 

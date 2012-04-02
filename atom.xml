@@ -4,7 +4,7 @@
   <title><![CDATA[ywen.in.coding]]></title>
   <link href="http://ywen.github.com/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-01T22:57:53-05:00</updated>
+  <updated>2012-04-01T23:19:07-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -60,7 +60,7 @@
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">UsersController</span>
 </span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
 </span><span class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">Builders</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">build</span>
-</span><span class='line'>    <span class="no">Persistence</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">persistent</span>
+</span><span class='line'>    <span class="no">Persistence</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">persist</span>
 </span><span class='line'>    <span class="n">respond_with</span> <span class="no">Presenters</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'>
