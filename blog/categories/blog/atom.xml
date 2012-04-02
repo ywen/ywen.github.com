@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: blog | ywen.in.coding]]></title>
+  <link href="http://ywen.github.com/blog/categories/blog/atom.xml" rel="self"/>
+  <link href="http://ywen.github.com/"/>
+  <updated>2012-04-01T21:39:34-05:00</updated>
+  <id>http://ywen.github.com/</id>
+  <author>
+    <name><![CDATA[Yi Wen]]></name>
+    <email><![CDATA[ywen.github@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[My coding standard for Rails projects]]></title>
+    <link href="http://ywen.github.com/blog/2012/04/01/coding-standard/"/>
+    <updated>2012-04-01T00:00:00-05:00</updated>
+    <id>http://ywen.github.com/blog/2012/04/01/coding-standard</id>
+    <content type="html"><![CDATA[<p>The purpose of this post is to discuss what is I think good when coding a Rails project. Some of thoughts incorporate the internal communications with my collogues <a href="https://github.com/azimux">Miles Georgi</a> and <a href="https://github.com/jeshuaborges">Jeshua Borges</a>. To publicize my thoughts as a public blog port, I hope I could get more feedbacks and improve upon the comments</p>
+
+<h2>Layers</h2>
+
+<p>The Rails framework is a layered architecture, and when an application becomes significantly more complicated, the default layers of Rails are not enough. I would like to discuss the layers I want to see to go into a Rails application. Next I will discuss these layers one by one</p>
+
+<h2>Thin controllers</h2>
+
+<p>Everybody talks about thin controllers, yet with all the trams I have worked with, the controllers never be thin. Why not? I think the answer is that people never really know where these extra yet necessary code should be put into if not in a controller. Think about it, the controller has done a lot of tasks, such as</p>
+
+<ul>
+<li>Authentications</li>
+<li>Authorizations</li>
+<li>Delegate the tasks to other layers</li>
+<li>Setup objects for page rendering</li>
+</ul>
+
+
+<p>Putting anything more than the above tasks is considered to be too much by my standard.</p>
+
+<p>A typical controller <code>create</code> and <code>show</code> may look like this:</p>
+
+<p>```ruby</p>
+
+<p>class UsersController
+  def create</p>
+
+<pre><code>user = Builders::User.new(params).build
+Persistence::User.new(user).persistent
+respond_with Presenters::User.new(user)
+</code></pre>
+
+<p>  end</p>
+
+<p>  def show</p>
+
+<pre><code>user = Finders::User.find(params[:id])
+respond_with Presenters::User.new(user)
+</code></pre>
+
+<p>  end</p>
+
+<p>```</p>
+
+<p>If enough models can be made in this exact pattern, we could simplify code with some little DSL:</p>
+]]></content>
+  </entry>
+  
+</feed>
