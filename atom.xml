@@ -4,7 +4,7 @@
   <title><![CDATA[ywen.in.coding]]></title>
   <link href="http://ywen.github.com/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-01T22:41:30-05:00</updated>
+  <updated>2012-04-01T22:44:09-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -158,7 +158,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The <code>to_json_properties</code> defines a baseline of what attributes will be included in the <code>to_json</code> returns.  Each attribute is either frwarded from the business model object, or defined in the presenter class when it apprantely doesn&#8217;t belong to a business model.</p>
+<p>The <code>to_json_properties</code> defines a baseline of what attributes will be included in the <code>to_json</code> returns.  Each attribute is either forwarded from the business model object, or defined in the presenter class when it apprantely doesn&#8217;t belong to a business model.</p>
 ]]></content>
   </entry>
   
