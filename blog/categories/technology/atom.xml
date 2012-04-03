@@ -4,7 +4,7 @@
   <title><![CDATA[Category: technology | ywen.in.coding]]></title>
   <link href="http://ywen.github.com/blog/categories/technology/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-02T23:26:01-05:00</updated>
+  <updated>2012-04-02T23:29:15-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -55,7 +55,7 @@
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
-<p>A DRY version of a typical builder in the form a DSL could be:</p>
+<p>A DRY version of a typical builder in the form of an internal DSL could be:</p>
 
 <p>```ruby</p>
 

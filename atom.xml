@@ -4,7 +4,7 @@
   <title><![CDATA[ywen.in.coding]]></title>
   <link href="http://ywen.github.com/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-02T23:26:01-05:00</updated>
+  <updated>2012-04-02T23:29:15-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -55,7 +55,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>A DRY version of a typical builder in the form a DSL could be:</p>
+<p>A DRY version of a typical builder in the form of an internal DSL could be:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
