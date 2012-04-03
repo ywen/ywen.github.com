@@ -224,7 +224,7 @@
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Presenters</span>
 </span><span class='line'>  <span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ObjectForDisplay</span>
 </span><span class='line'>    <span class="n">to_json_properties</span> <span class="ss">:name_with_first_last_in_front</span><span class="p">,</span> <span class="ss">:email_addresses</span><span class="p">,</span> <span class="ss">:phone</span><span class="p">,</span> <span class="ss">:status</span>
-</span><span class='line'>    <span class="n">forward_methods</span> <span class="ss">:email_addresses</span><span class="p">,</span> <span class="ss">:status</span>
+</span><span class='line'>    <span class="n">forward_methods</span> <span class="ss">:email_addresses</span><span class="p">,</span> <span class="ss">:status</span><span class="p">,</span> <span class="ss">:phone</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="k">def</span> <span class="nf">name_with_first_last_in_front</span>
 </span><span class='line'>      <span class="s2">&quot;</span><span class="si">#{</span><span class="n">object</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="n">object</span><span class="o">.</span><span class="n">last_name</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -281,6 +281,8 @@
     <p class="meta">
       
       
+        <a class="basic-alignment right" href="/blog/2012/04/02/coding-standard-part-2/" title="Next Post: My coding standard for Rails projects (part 2)">My coding standard for Rails projects (part 2) &raquo;</a>
+      
     </p>
   </footer>
 </article>
@@ -292,6 +294,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/04/02/coding-standard-part-2/">My coding standard for Rails projects (part 2)</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/04/01/coding-standard-part-1/">My coding standard for Rails projects (part 1)</a>

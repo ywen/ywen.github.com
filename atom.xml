@@ -4,7 +4,7 @@
   <title><![CDATA[ywen.in.coding]]></title>
   <link href="http://ywen.github.com/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-01T23:24:04-05:00</updated>
+  <updated>2012-04-02T23:08:55-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -12,6 +12,223 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[My coding standard for Rails projects (part 2)]]></title>
+    <link href="http://ywen.github.com/blog/2012/04/02/coding-standard-part-2/"/>
+    <updated>2012-04-02T00:00:00-05:00</updated>
+    <id>http://ywen.github.com/blog/2012/04/02/coding-standard-part-2</id>
+    <content type="html"><![CDATA[<h2>Builders</h2>
+
+<p>In the part 1, the code snippet about the controller has a line</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">user</span> <span class="o">=</span> <span class="no">Builders</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">build</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This implies that a <a href="http://en.wikipedia.org/wiki/Builder_pattern">Builder Pattern</a> is used for creating a model, more precisely, creating an <a href="http://domaindrivendesign.org/node/88">&#8220;Aggregate&#8221;</a> in the Domain Driven Design terminology. The return value of a builder should always be the root object of the aggregate. Below is an example of a <code>build</code> method.</p>
+
+<figure class='code'><figcaption><span>User Builder  (builder.rb)</span> <a href='http://ywen.github.com/downloads/code/builder.rb'>download</a></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Builders</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">Builder</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">build</span>
+</span><span class='line'>      <span class="n">user</span> <span class="o">=</span> <span class="no">BusinessModel</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">build</span> <span class="n">params</span>
+</span><span class='line'>      <span class="n">user</span><span class="o">.</span><span class="n">email_addresses</span> <span class="o">=</span> <span class="o">[</span><span class="no">EmailAddress</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">user</span><span class="o">.</span><span class="n">phones</span> <span class="o">=</span> <span class="o">[</span><span class="no">Phone</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="o">]</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A DRY version of a typical builder in the form a DSL could be:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Builders</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">User</span>
+</span><span class='line'>    <span class="n">build_for</span> <span class="ss">:user</span><span class="p">,</span> <span class="ss">:with_associations</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:email_addresses</span><span class="p">,</span> <span class="ss">:phones</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A lof of Rails projects I have seen have building <code>email_addresses</code> and <code>phones</code> logic in the <code>UsersController</code>, which then becomes hard to unit test and impossible to reuse.</p>
+
+<p>Another replacement to the builders is using hooks, such as <code>after_create</code>. This makes your code highly depends on a specific ORM implementation, making the one line <code>user.create!</code> becomes hard to understand, and slow the unit tests.</p>
+
+<p>The User BusinessModel should be responsible building a <code>user</code> and only it. Below is a possible implementation:</p>
+
+<figure class='code'><figcaption><span>BusinessModel Builder  (business_model_builder.rb)</span> <a href='http://ywen.github.com/downloads/code/business_model_builder.rb'>download</a></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">BusinessModel</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">User</span>
+</span><span class='line'>    <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
+</span><span class='line'>      <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>        <span class="nb">self</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">valid_params</span><span class="p">(</span><span class="n">params</span><span class="p">))</span><span class="o">.</span><span class="n">tap</span> <span class="k">do</span>
+</span><span class='line'>          <span class="k">raise</span> <span class="no">ObjectInvalidError</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span> <span class="k">unless</span> <span class="n">user</span><span class="o">.</span><span class="n">valid?</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kp">private</span>
+</span><span class='line'>      <span class="k">def</span> <span class="nf">valid_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>        <span class="o">[</span><span class="ss">:id</span><span class="p">,</span> <span class="ss">:first_name</span><span class="p">,</span> <span class="ss">:last_name</span><span class="o">].</span><span class="n">inject</span><span class="p">({})</span> <span class="k">do</span> <span class="o">|</span><span class="n">attributes</span><span class="p">,</span> <span class="n">key</span><span class="o">|</span>
+</span><span class='line'>          <span class="n">attributes</span><span class="o">.</span><span class="n">merge!</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="n">key</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This, as usual, can be abstracted into a DSL:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">BusinessModel</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">User</span>
+</span><span class='line'>    <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
+</span><span class='line'>      <span class="kp">private</span>
+</span><span class='line'>      <span class="k">def</span> <span class="nf">valid_params</span>
+</span><span class='line'>        <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">have_builder_method</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Business Models</h2>
+
+<p>A business model, in Domain Driven Design term, is a <a href="http://domaindrivendesign.org/node/109">Entity</a>. A business model should be persisted, but the model itself knows nothing about how itself being persisted, it delegates such a task to its persistence class.</p>
+
+<p>A business model, contains attributes and business-related calculations based on these atrributes.</p>
+
+<p>A business model also contains the validations that can be called by <code>user.valid?</code></p>
+
+<h2>Persistence Classes</h2>
+
+<p>In the controller code in the part 1:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Persistence</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">persist</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A Persistence class takes the business model object as its only parameter in its constructor and the persists the object. The Persistence object knows to how to map a model object&#8217;s attributes into a database columns, for example. An example of such a method could be like this:</p>
+
+<figure class='code'><figcaption><span>Uer Persistence Class  (persistence_create.rb)</span> <a href='http://ywen.github.com/downloads/code/persistence_create.rb'>download</a></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Persistence</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">User</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">persist</span>
+</span><span class='line'>      <span class="no">ActiveRecordStore</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">business_object</span><span class="p">)</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>      <span class="c1">#save part of attributes to redis</span>
+</span><span class='line'>      <span class="no">RedisStore</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">business_object</span><span class="p">)</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Buidling a business model from the persistence layer might look like this:</p>
+
+<figure class='code'><figcaption><span>Uer Persistence Class  (persistence_load.rb)</span> <a href='http://ywen.github.com/downloads/code/persistence_load.rb'>download</a></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Persistence</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">User</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">load</span>
+</span><span class='line'>      <span class="n">user</span> <span class="o">=</span> <span class="no">ActiveRecordStore</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">business_object</span><span class="p">)</span><span class="o">.</span><span class="n">load</span>
+</span><span class='line'>      <span class="no">RedisStore</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">load</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>ActiveRecordStore::User</code> in the code could be smart enough to load a user based on what attributes in the <code>business_object</code>. For example:</p>
+
+<figure class='code'><figcaption><span>ActiveRecordStore example  (active_record_store_load.rb)</span> <a href='http://ywen.github.com/downloads/code/active_record_store_load.rb'>download</a></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">ActiveRecordStore</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">Store</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">load</span>
+</span><span class='line'>      <span class="n">non_empty_attributes</span> <span class="o">=</span> <span class="no">HashHelper</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">physical_attributes</span><span class="p">)</span><span class="o">.</span><span class="n">non_blanks</span>
+</span><span class='line'>      <span class="no">Physical</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">non_empty_attributes</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The code bears some explainations: <code>physical_attributes</code> is a method to fetch the attributes will be saved into the database. This method is used by both <code>save</code> and <code>load</code>. The <code>Physical::User</code> is a child of <code>ActiveRecord::Base</code> that talks to the database directly.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[My coding standard for Rails projects (part 1)]]></title>
@@ -150,7 +367,7 @@
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Presenters</span>
 </span><span class='line'>  <span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ObjectForDisplay</span>
 </span><span class='line'>    <span class="n">to_json_properties</span> <span class="ss">:name_with_first_last_in_front</span><span class="p">,</span> <span class="ss">:email_addresses</span><span class="p">,</span> <span class="ss">:phone</span><span class="p">,</span> <span class="ss">:status</span>
-</span><span class='line'>    <span class="n">forward_methods</span> <span class="ss">:email_addresses</span><span class="p">,</span> <span class="ss">:status</span>
+</span><span class='line'>    <span class="n">forward_methods</span> <span class="ss">:email_addresses</span><span class="p">,</span> <span class="ss">:status</span><span class="p">,</span> <span class="ss">:phone</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="k">def</span> <span class="nf">name_with_first_last_in_front</span>
 </span><span class='line'>      <span class="s2">&quot;</span><span class="si">#{</span><span class="n">object</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="n">object</span><span class="o">.</span><span class="n">last_name</span><span class="si">}</span><span class="s2">&quot;</span>
