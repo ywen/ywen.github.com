@@ -4,7 +4,7 @@
   <title><![CDATA[ywen.in.coding]]></title>
   <link href="http://ywen.github.com/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-02T23:12:22-05:00</updated>
+  <updated>2012-04-02T23:26:01-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -166,7 +166,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>A Persistence class takes the business model object as its only parameter in its constructor and the persists the object. The Persistence object knows to how to map a model object&#8217;s attributes into a database columns, for example. An example of such a method could be like this:</p>
+<p>A Persistence class takes the business model object as its only parameter in its constructor and the persists the object. The Persistence object knows to how to map a model object&#8217;s attributes into database columns, for example. An example of such a method could be like this:</p>
 
 <figure class='code'><figcaption><span>Uer Persistence Class  (persistence_create.rb)</span> <a href='http://ywen.github.com/downloads/code/persistence_create.rb'>download</a></figcaption>
  <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -234,7 +234,20 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The code bears some explainations: <code>physical_attributes</code> is a method to fetch the attributes will be saved into the database. This method is used by both <code>save</code> and <code>load</code>. The <code>Physical::User</code> is a child of <code>ActiveRecord::Base</code> that talks to the database directly.</p>
+<p>The code bears some explainations: <code>physical_attributes</code> is a method to transform the business model object attributes into the table columns. This method is used by both <code>save</code> and <code>load</code>. The <code>Physical::User</code> is a child of <code>ActiveRecord::Base</code> that talks to the database directly.</p>
+
+<p>Some custom methods might be needed, such as <code>find_by_email_address</code>. These kind of finders, though, can be easily standardized.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">generate_has_many_association_finders</span> <span class="ss">:user</span><span class="p">,</span> <span class="ss">:association_name</span> <span class="o">=&gt;</span> <span class="ss">:email_addresses</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DSLs</h2>
+
+<p>All the above examples can often be DRYed up by some internal DSLs. But I feel that I must say that these DSLs should not be overused.</p>
+
+<p>A sympton of overuse of DSL (and thus over abstract the logic) is that the DSL allows too much options. When you find out you have to handle more than 2 slightly different situations in one DSL implementation method, it is time to seperate the situations into 2 or more slightly different DSL macros. And of course these DSL macros implementations can share a large portation of logic by abstract the common code out.</p>
 ]]></content>
   </entry>
   
