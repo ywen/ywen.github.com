@@ -4,7 +4,7 @@
   <title><![CDATA[Category: technology | ywen.in.coding]]></title>
   <link href="http://ywen.github.com/blog/categories/technology/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-02T23:08:55-05:00</updated>
+  <updated>2012-04-02T23:12:22-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -40,12 +40,16 @@
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Builders</span>
 </span><span class='line'>  <span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">Builder</span>
 </span><span class='line'>    <span class="k">def</span> <span class="nf">build</span>
-</span><span class='line'>      <span class="n">user</span> <span class="o">=</span> <span class="no">BusinessModel</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">build</span> <span class="n">params</span>
-</span><span class='line'>      <span class="n">user</span><span class="o">.</span><span class="n">email_addresses</span> <span class="o">=</span> <span class="o">[</span><span class="no">EmailAddress</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="o">]</span>
-</span><span class='line'>      <span class="n">user</span><span class="o">.</span><span class="n">phones</span> <span class="o">=</span> <span class="o">[</span><span class="no">Phone</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="o">]</span>
+</span><span class='line'>      <span class="no">BusinessModel</span><span class="o">::</span><span class="no">User</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">tap</span> <span class="k">do</span> <span class="o">|</span><span class="n">business_object</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">business_object</span><span class="o">.</span><span class="n">email_addresses</span> <span class="o">=</span> <span class="o">[</span><span class="no">EmailAddress</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="o">]</span>
+</span><span class='line'>        <span class="n">business_object</span><span class="o">.</span><span class="n">phones</span> <span class="o">=</span> <span class="o">[</span><span class="no">Phone</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="o">]</span>
+</span><span class='line'>        <span class="n">business_object</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="no">Address</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">build</span>
+</span><span class='line'>      <span class="k">end</span>
 </span><span class='line'>    <span class="k">end</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
@@ -58,7 +62,9 @@
 <p>module Builders
   class User</p>
 
-<pre><code>build_for :user, :with_associations =&gt; [:email_addresses, :phones]
+<pre><code>build_for :user, 
+  :has_many_associations =&gt; [:email_addresses, :phones],
+  :has_one_associations =&gt; [:address]
 </code></pre>
 
 <p>  end
