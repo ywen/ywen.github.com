@@ -2,8 +2,8 @@ module BusinessModel
   class User
     class << self
       def build(params)
-        self.new(valid_params(params)).tap do
-          raise ObjectInvalidError.new(user.errors) unless user.valid?
+        self.new(valid_params(params)).tap do |object|
+          raise ObjectInvalidError.new(object.errors) unless object.valid?
         end
       end
 

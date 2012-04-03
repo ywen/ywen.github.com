@@ -181,8 +181,8 @@ user = Builders::User.new(params).build This implies that a Builder &hellip;">
 </span><span class='line'>  <span class="k">class</span> <span class="nc">User</span>
 </span><span class='line'>    <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
 </span><span class='line'>      <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</span><span class='line'>        <span class="nb">self</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">valid_params</span><span class="p">(</span><span class="n">params</span><span class="p">))</span><span class="o">.</span><span class="n">tap</span> <span class="k">do</span>
-</span><span class='line'>          <span class="k">raise</span> <span class="no">ObjectInvalidError</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span> <span class="k">unless</span> <span class="n">user</span><span class="o">.</span><span class="n">valid?</span>
+</span><span class='line'>        <span class="nb">self</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">valid_params</span><span class="p">(</span><span class="n">params</span><span class="p">))</span><span class="o">.</span><span class="n">tap</span> <span class="k">do</span> <span class="o">|</span><span class="n">object</span><span class="o">|</span>
+</span><span class='line'>          <span class="k">raise</span> <span class="no">ObjectInvalidError</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">object</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span> <span class="k">unless</span> <span class="n">object</span><span class="o">.</span><span class="n">valid?</span>
 </span><span class='line'>        <span class="k">end</span>
 </span><span class='line'>      <span class="k">end</span>
 </span><span class='line'>
