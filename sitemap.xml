@@ -2,18 +2,22 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://ywen.github.com/blog/2012/04/01/coding-standard-part-1/</loc>
-        <lastmod>2012-04-01T23:31:59-05:00</lastmod>
+        <lastmod>2012-04-05T22:42:47-05:00</lastmod>
     </url>
     <url>
         <loc>http://ywen.github.com/blog/2012/04/02/coding-standard-part-2/</loc>
-        <lastmod>2012-04-02T23:29:08-05:00</lastmod>
+        <lastmod>2012-04-05T22:42:50-05:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ywen.github.com/blog/2012/04/05/coding-standard-part-3/</loc>
+        <lastmod>2012-04-05T22:42:38-05:00</lastmod>
     </url>
     <url>
         <loc>http://ywen.github.com/blog/archives/</loc>
-        <lastmod>2012-04-02T23:29:08-05:00</lastmod>
+        <lastmod>2012-04-05T22:42:50-05:00</lastmod>
     </url>
     <url>
         <loc>http://ywen.github.com/</loc>
-        <lastmod>2012-04-02T23:29:08-05:00</lastmod>
+        <lastmod>2012-04-05T22:42:50-05:00</lastmod>
     </url>
 </urlset>

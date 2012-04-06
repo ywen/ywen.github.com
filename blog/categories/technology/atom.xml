@@ -4,7 +4,7 @@
   <title><![CDATA[Category: technology | ywen.in.coding]]></title>
   <link href="http://ywen.github.com/blog/categories/technology/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-02T23:44:32-05:00</updated>
+  <updated>2012-04-05T22:42:59-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[My coding standard for Rails projects (part 3)]]></title>
+    <link href="http://ywen.github.com/blog/2012/04/05/coding-standard-part-3/"/>
+    <updated>2012-04-05T22:41:00-05:00</updated>
+    <id>http://ywen.github.com/blog/2012/04/05/coding-standard-part-3</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[My coding standard for Rails projects (part 2)]]></title>
