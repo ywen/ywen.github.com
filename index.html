@@ -9,8 +9,8 @@
   <meta name="author" content="Yi Wen">
 
   
-  <meta name="description" content="
-">
+  <meta name="description" content="Unit Testing Unit Testing is the central piece of a project for two reasons: Tests direct how the production code is written.
+Tests assure any given &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -108,7 +108,140 @@
   </header>
 
 
-  <div class="entry-content">
+  <div class="entry-content"><h2>Unit Testing</h2>
+
+<p>Unit Testing is the central piece of a project for two reasons:</p>
+
+<ul>
+<li>Tests direct how the production code is written.</li>
+<li>Tests assure any given execution paths within a unit (method) output when a developer thinks they output</li>
+</ul>
+
+
+<p>I am going to trying to describe how the tests direct how the code under test is written.</p>
+
+<p>I have class which takes a hash called <code>settings</code> and use the <code>settings</code> to do something.</p>
+
+<p>Like below:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SomeClass</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:settings</span>
+</span><span class='line'>  <span class="kp">private</span> <span class="ss">:settings</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@settings</span> <span class="o">=</span> <span class="n">settings</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">deliver!</span><span class="p">(</span><span class="n">mail</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">list</span> <span class="o">=</span> <span class="no">Redis</span><span class="o">::</span><span class="no">List</span><span class="o">.</span><span class="n">new</span> <span class="n">settings</span><span class="o">[</span><span class="ss">:redis_key_name</span><span class="o">]</span><span class="p">,</span> <span class="ss">:marshal</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+</span><span class='line'>    <span class="n">settings</span><span class="o">[</span><span class="ss">:marshallable_converters</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">setting</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">mail</span> <span class="o">=</span> <span class="no">MarshallableConverterSetting</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">setting</span><span class="p">)</span><span class="o">.</span><span class="n">marshallable_class</span><span class="o">.</span><span class="n">marshallable</span><span class="p">(</span><span class="n">mail</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">list</span> <span class="o">&lt;&lt;</span> <span class="n">mail</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now the problem is that sometimes <code>settings</code> will miss some keys. It may not have <code>:redis_key_name</code>, for example. In this case, I can assume that a default for the missing keys.</p>
+
+<p>The first attempt is to do something like this in the <code>initialize</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+</span><span class='line'>  <span class="vi">@settings</span> <span class="o">=</span> <span class="n">default_settings</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="kp">private</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">default_settings</span>
+</span><span class='line'>  <span class="p">{</span><span class="ss">:redis_key_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;some-name&quot;</span><span class="p">,</span> <span class="ss">:marshallable_converters</span> <span class="o">=&gt;</span> <span class="ss">:some_default</span><span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>First, let me say although this is relatively small, it breaks something important about OO design: the logic for inserting the defaults doesn&#8217;t belong to this class logically, it should not be this class&#8217;s responsibility to consider this.</p>
+
+<p>In the real world, I may not realize this at all, it is such a small and innocent adds. But what happned was, I wrote my tests first and tried to go with this path, then I found out how am I going to test this? I could not check the <code>settings</code> hash since it is private (and it should be). I could call <code>deliver!</code>, adding contexts to check when a setting is misisng, the default takes over, but that will make the tests so messy and irrelevant. Then I figured I couldn&#8217;t do this. I should seek other implementations. So the end result is like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SomeClass</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:settings</span>
+</span><span class='line'>  <span class="kp">private</span> <span class="ss">:settings</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># @api private</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@settings</span> <span class="o">=</span> <span class="no">Settings</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># @api private</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">deliver!</span><span class="p">(</span><span class="n">mail</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">list</span> <span class="o">=</span> <span class="no">Redis</span><span class="o">::</span><span class="no">List</span><span class="o">.</span><span class="n">new</span> <span class="n">settings</span><span class="o">.</span><span class="n">redis_key_name</span><span class="p">,</span> <span class="ss">:marshal</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+</span><span class='line'>    <span class="n">settings</span><span class="o">.</span><span class="n">marshallable_converters</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">setting</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">mail</span> <span class="o">=</span> <span class="no">MarshallableConverterSetting</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">setting</span><span class="p">)</span><span class="o">.</span><span class="n">marshallable_class</span><span class="o">.</span><span class="n">marshallable</span><span class="p">(</span><span class="n">mail</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">list</span> <span class="o">&lt;&lt;</span> <span class="n">mail</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>A new class <code>Settings</code> is being added for handling default values. Both the code and tests become much simpler. As a bonus, <code>Settings</code> class is later being reused by other classes as well.</p>
+
+<h2>Integration Tests</h2>
+
+<p>A few words about the tools.</p>
+
+<p>I don&#8217;t like cucumber since day one. It is messy with global steps; it claims writing cucumber tests is doing BDD, well, it is not. It is doing integration testing, pure and simple.</p>
+
+<p>Reardless, cucumber is widely used and something better than cuucmber coming out from cucumber, such as sinnach and turnip.</p>
+
+<p>The great thing about cucumber is Gherkin, a great way communicating between Business Analyst (BA) / Product Manager (PM) / QA and developers.</p>
+
+<p>Integration tests are essential to a project: unit testing should cover all the logic within a method, but there is no guarantee that calls between methods will work correctly. We cannot prove the correctness of a program in a reasonable time, but we can increase the chance of its being correctly written by using the integration tests.</p>
+
+<p>When a developer starting on a new feature, he writes a feature with several scenarios (could be written by a BA), which of course won&#8217;t pass. And actively communicate with business people on if this is what they want. Getting some resonable insights on what the feature is about, his task then become clearly defined: implement something to make the feature goes green.</p>
+
+<p>Same for bug fixes, first write a feature that will fail because of the bug in question. Then fix the bug and verify the feature passes. This approach will give developer a clear defined goal. And in the end, the developer can say with confidence: I fixed the bug because now this feature is green. This is also a great way to let the managements have faith in the development team as well.</p>
 </div>
   
   

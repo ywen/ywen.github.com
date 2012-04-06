@@ -4,7 +4,7 @@
   <title><![CDATA[Category: technology | ywen.in.coding]]></title>
   <link href="http://ywen.github.com/blog/categories/technology/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-05T22:42:59-05:00</updated>
+  <updated>2012-04-05T23:51:48-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -18,7 +18,115 @@
     <link href="http://ywen.github.com/blog/2012/04/05/coding-standard-part-3/"/>
     <updated>2012-04-05T22:41:00-05:00</updated>
     <id>http://ywen.github.com/blog/2012/04/05/coding-standard-part-3</id>
-    <content type="html"><![CDATA[
+    <content type="html"><![CDATA[<h2>Unit Testing</h2>
+
+<p>Unit Testing is the central piece of a project for two reasons:</p>
+
+<ul>
+<li>Tests direct how the production code is written.</li>
+<li>Tests assure any given execution paths within a unit (method) output when a developer thinks they output</li>
+</ul>
+
+
+<p>I am going to trying to describe how the tests direct how the code under test is written.</p>
+
+<p>I have class which takes a hash called <code>settings</code> and use the <code>settings</code> to do something.</p>
+
+<p>Like below:</p>
+
+<p>```ruby</p>
+
+<p>class SomeClass
+  attr_reader :settings
+  private :settings
+  def initialize(settings)</p>
+
+<pre><code>@settings = settings
+</code></pre>
+
+<p>  end</p>
+
+<p>  def deliver!(mail)</p>
+
+<pre><code>list = Redis::List.new settings[:redis_key_name], :marshal =&gt; true
+settings[:marshallable_converters].each do |setting|
+  mail = MarshallableConverterSetting.new(setting).marshallable_class.marshallable(mail)
+end
+list &lt;&lt; mail
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>Now the problem is that sometimes <code>settings</code> will miss some keys. It may not have <code>:redis_key_name</code>, for example. In this case, I can assume that a default for the missing keys.</p>
+
+<p>The first attempt is to do something like this in the <code>initialize</code>:</p>
+
+<p>```ruby</p>
+
+<p>def initialize(settings)
+  @settings = default_settings.merge(settings)
+end</p>
+
+<p>private
+def default_settings
+  {:redis_key_name => "some-name", :marshallable_converters => :some_default}
+end</p>
+
+<p>```</p>
+
+<p>First, let me say although this is relatively small, it breaks something important about OO design: the logic for inserting the defaults doesn't belong to this class logically, it should not be this class's responsibility to consider this.</p>
+
+<p>In the real world, I may not realize this at all, it is such a small and innocent adds. But what happned was, I wrote my tests first and tried to go with this path, then I found out how am I going to test this? I could not check the <code>settings</code> hash since it is private (and it should be). I could call <code>deliver!</code>, adding contexts to check when a setting is misisng, the default takes over, but that will make the tests so messy and irrelevant. Then I figured I couldn't do this. I should seek other implementations. So the end result is like this:</p>
+
+<p>```ruby</p>
+
+<p>class SomeClass
+  attr_reader :settings
+  private :settings</p>
+
+<p>  # @api private
+  def initialize(settings)</p>
+
+<pre><code>@settings = Settings.new(settings)
+</code></pre>
+
+<p>  end</p>
+
+<p>  # @api private
+  def deliver!(mail)</p>
+
+<pre><code>list = Redis::List.new settings.redis_key_name, :marshal =&gt; true
+settings.marshallable_converters.each do |setting|
+  mail = MarshallableConverterSetting.new(setting).marshallable_class.marshallable(mail)
+end
+list &lt;&lt; mail
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>A new class <code>Settings</code> is being added for handling default values. Both the code and tests become much simpler. As a bonus, <code>Settings</code> class is later being reused by other classes as well.</p>
+
+<h2>Integration Tests</h2>
+
+<p>A few words about the tools.</p>
+
+<p>I don't like cucumber since day one. It is messy with global steps; it claims writing cucumber tests is doing BDD, well, it is not. It is doing integration testing, pure and simple.</p>
+
+<p>Reardless, cucumber is widely used and something better than cuucmber coming out from cucumber, such as sinnach and turnip.</p>
+
+<p>The great thing about cucumber is Gherkin, a great way communicating between Business Analyst (BA) / Product Manager (PM) / QA and developers.</p>
+
+<p>Integration tests are essential to a project: unit testing should cover all the logic within a method, but there is no guarantee that calls between methods will work correctly. We cannot prove the correctness of a program in a reasonable time, but we can increase the chance of its being correctly written by using the integration tests.</p>
+
+<p>When a developer starting on a new feature, he writes a feature with several scenarios (could be written by a BA), which of course won't pass. And actively communicate with business people on if this is what they want. Getting some resonable insights on what the feature is about, his task then become clearly defined: implement something to make the feature goes green.</p>
+
+<p>Same for bug fixes, first write a feature that will fail because of the bug in question. Then fix the bug and verify the feature passes. This approach will give developer a clear defined goal. And in the end, the developer can say with confidence: I fixed the bug because now this feature is green. This is also a great way to let the managements have faith in the development team as well.</p>
 ]]></content>
   </entry>
   
