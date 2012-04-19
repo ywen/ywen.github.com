@@ -4,7 +4,7 @@
   <title><![CDATA[ywen.in.coding]]></title>
   <link href="http://ywen.github.com/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-05T23:51:48-05:00</updated>
+  <updated>2012-04-18T22:23:50-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -12,6 +12,151 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[100% test coverage is the starting point]]></title>
+    <link href="http://ywen.github.com/blog/2012/04/18/100-percent-test-coverage-is-the-starting-point/"/>
+    <updated>2012-04-18T21:18:00-05:00</updated>
+    <id>http://ywen.github.com/blog/2012/04/18/100-percent-test-coverage-is-the-starting-point</id>
+    <content type="html"><![CDATA[<h2>Introduction</h2>
+
+<p>I am surprised when I read this <a href="http://martinfowler.com/bliki/TestCoverage.html">post</a> because I am one of Martin Fowler fans and still is. But I have to disagree large part of Martin&#8217;s view on this issue.</p>
+
+<p>First, the part that I agree with him is that test coverage should not be a goal, and a high number doesn&#8217;t mean much. But from this fact, I have my own conclusions.</p>
+
+<h2>What is ideal test coverage number</h2>
+
+<p>In short, 100% test coverage number is not a goal, it is a requirement, a starting point for doing good tests. Below 100% is unacceptable.</p>
+
+<p>Why? I will use some ruby code as my example</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">return</span> <span class="kp">true</span> <span class="k">if</span> <span class="n">condition?</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>with one test in rspec:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">context</span> <span class="s2">&quot;when the condition is true&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;returns true&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">subject</span><span class="o">.</span><span class="n">stub</span><span class="p">(</span><span class="ss">:condition?</span><span class="p">)</span><span class="o">.</span><span class="n">and_return</span> <span class="kp">true</span>
+</span><span class='line'>    <span class="n">subject</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">should</span> <span class="n">be_true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When you run the test with coverage, the line has a 100% coverage number. But do you really test the method well? the answer is no because you also need to test when condition is <code>false</code>. So the &#8220;real&#8221; coverage here is actually like 50% roughly.</p>
+
+<p>Now think about it, when the test coverage tool tells you that you are 100% covered, it is probably lying, you don&#8217;t. What about Martin&#8217;s claims of &#8220;high coverage&#8221; like 90%? how poor that coverage is if 100% cverage is not that convicing?</p>
+
+<h2>Test every method?</h2>
+
+<p>Do I absoutely test every each single method? The answer is no. Here is an example:</p>
+
+<p>I love constructor injection pattern, so a lot of my code looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Class</span> <span class="n">A</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:dep1</span><span class="p">,</span> <span class="ss">:dep2</span>
+</span><span class='line'>  <span class="kp">private</span> <span class="ss">:dep1</span><span class="p">,</span> <span class="ss">:dep2</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">dep1</span><span class="p">,</span> <span class="n">dep2</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@dep1</span><span class="p">,</span> <span class="vi">@dep2</span> <span class="o">=</span> <span class="n">dep1</span><span class="p">,</span> <span class="n">dep2</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>How would I test this code in seperation? Basically I can&#8217;t, and I don&#8217;t. So if I write this code and commit, my test coverage will go below 100%. Is that OK? No, absolutely not OK. Then what do I do wrong?</p>
+
+<p>I have to step back and ask myself, why do I write this code? Do I really need it? The answer most likely is: yes I do. However, it is not useful on its own, I will need my dependencies in some of instance methds in that class. But I don&#8217;t need the dependencies until I actually work on the instance methods.</p>
+
+<p>So what I do wrong is the sequence of my actions. I should have had written one test that will present an intent, or a uasge of an instance of this class, and I start to impelment the method that does it. When I implement the method, I may find out that I have to add such a constructor (or not, for what it worth). At that time, I add this constructor and it is covered by an execution of the test against the instance method. My coverage number is still 100%.</p>
+
+<p>This example essentially is the principle of &#8220;Do not test private methods&#8221;.</p>
+
+<h2>validates_present_of</h2>
+
+<p>I would like to be off topic a little bit to discuss a view that some people hold: do not test your validations in Rails since you are tesing the framework.</p>
+
+<p>Well, the truth is, you are not testing framework. When you add one line into your class like</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">validates_present_of</span> <span class="ss">:name</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You add a business rule in it. The framework does not have this rule, it doesn&#8217;t know the <code>:name</code> is required in this model class. So you should be testing this line to make sure name is being required.</p>
+
+<p>Think of an exetreme situation: Given that you don&#8217;t test this line, some developer accidently deletes the line. No tests would fail and the fault code goes to production. Then next thing you know, you eitehr raises a bunch of 500 error when user doesn&#8217;t fill in the name, or worse, some users register successfully without a name. You then may not be able to charge his card because no name associates with it. Would you still think this line is framework concern at that point?</p>
+
+<p>If you write you test like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">it</span> <span class="s2">&quot;is required&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">subject</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>  <span class="n">subject</span><span class="o">.</span><span class="n">valid?</span>
+</span><span class='line'>  <span class="n">subject</span><span class="o">.</span><span class="n">errors</span><span class="o">[</span><span class="ss">:name</span><span class="o">].</span><span class="n">should</span> <span class="kp">include</span><span class="p">(</span><span class="s2">&quot;is required&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then you are testing the framework because the error message is generated by the framework, not by your code. So something like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">subject</span><span class="o">.</span><span class="n">should</span> <span class="n">have</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">error_on</span><span class="p">(</span><span class="ss">:name</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>is good.</p>
+
+<p>Some would argue it is so painful to write like 5 lines of code for each attribute being validated. Very true, but how about this in your test:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">it_requires_attributes</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:email</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This looks easy, right? All you have to do is to add a macro behind the scene to exapand into some good tests. I am not advocating this macro itself, I am just saying there are a lot of ways to make your tests DRY.</p>
+
+<h2>In team environments</h2>
+
+<p>It is very difficult to configure a CI environment with less than 100% test coverage. The problem is this: Say your manager demands a 86% test coverage. Then one could just wait for another teammate commits and increase the test coverage to 86.1%, then he commits without test, drop the test coverage back to 86%. Mission accomplished.</p>
+
+<p>So the only way that makes sense is to ensure to increase or maintain the test coverage with every commits (or every merge back to the main line if you use git). To do so, a lot of job must be done on the CI servers side to be able to:</p>
+
+<ul>
+<li>Know the current thershold</li>
+<li>Increase the thershold automatically when the test coverage goes up</li>
+<li>Break the build when the test coverage is below the thershold</li>
+</ul>
+
+
+<p>With a 100% code coverage, this is so much simpler, each commit either has 100% coverage, or it doesn&#8217;t. The CI servers just need to fail those who don&#8217;t.</p>
+
+<h2>Summary</h2>
+
+<p>I understand Martin&#8217;s position completely. He is addressing the problem where the test coverage number becomes only a goal, a symbol, not the real effort. But it doesn&#8217;t mean a CI server should not measure the test coverage. In my own practice, when we have this number and when people do realize how bad it is, we ted to do a better job, pay more attention to the code we write. It is a very useful tool for a team in learning.</p>
+
+<p>When a team becomes better, the build will not break because of the test coverage, then it doesn&#8217;t really matter if the CI server keeps measureing it. It will give people confidence, validate what they have been doing. Thus a good ending.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[My coding standard for Rails projects (part 3)]]></title>
