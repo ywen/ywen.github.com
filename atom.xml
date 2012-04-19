@@ -4,7 +4,7 @@
   <title><![CDATA[ywen.in.coding]]></title>
   <link href="http://ywen.github.com/atom.xml" rel="self"/>
   <link href="http://ywen.github.com/"/>
-  <updated>2012-04-18T22:23:50-05:00</updated>
+  <updated>2012-04-18T22:32:00-05:00</updated>
   <id>http://ywen.github.com/</id>
   <author>
     <name><![CDATA[Yi Wen]]></name>
@@ -152,7 +152,7 @@
 
 <h2>Summary</h2>
 
-<p>I understand Martin&#8217;s position completely. He is addressing the problem where the test coverage number becomes only a goal, a symbol, not the real effort. But it doesn&#8217;t mean a CI server should not measure the test coverage. In my own practice, when we have this number and when people do realize how bad it is, we ted to do a better job, pay more attention to the code we write. It is a very useful tool for a team in learning.</p>
+<p>I understand Martin&#8217;s position completely. He is addressing the problem where the test coverage number becomes only a goal, a symbol, not the real effort. But it doesn&#8217;t mean a CI server should not measure the test coverage. In my own practice, when we have this number and when we realize how bad it is, we tend to do a better job, pay more attention to the code we write. It is a very useful tool for a team in learning.</p>
 
 <p>When a team becomes better, the build will not break because of the test coverage, then it doesn&#8217;t really matter if the CI server keeps measureing it. It will give people confidence, validate what they have been doing. Thus a good ending.</p>
 ]]></content>
